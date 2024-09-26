@@ -3,6 +3,8 @@ import {StyleSheet, SafeAreaView, Button} from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {AuthStackParamList} from '../../navigation/stack/AuthStackNavigator';
 import {authNaviagtions} from '../../constants/navigation.constants';
+import CustomButton from '../../components/CustomButton';
+
 
 type AuthHomeScreenProps = StackScreenProps<
   AuthStackParamList,
@@ -12,12 +14,18 @@ type AuthHomeScreenProps = StackScreenProps<
 function AuthHomeScreen({navigation}: AuthHomeScreenProps) {
   return (
     <SafeAreaView style={styles.container}>
-      <Button
-        title="로그인 뷰로 이동"
-        onPress={() => navigation.navigate(authNaviagtions.LOGIN)}></Button>
-        <Button
-        title="회원가입 뷰로 이동"
-        onPress={() => navigation.navigate(authNaviagtions.SIGNUP)}></Button>
+      <CustomButton
+        label="로그인하기"
+        onPress={() => navigation.navigate(authNaviagtions.LOGIN)}
+       >
+       </CustomButton>
+        <CustomButton
+        label="회원가입하기"
+        variant='outlined'
+        onPress={() => navigation.navigate(authNaviagtions.SIGNUP)}
+        >
+
+        </CustomButton>
     </SafeAreaView>
   );
 }
