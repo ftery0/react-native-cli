@@ -2,7 +2,7 @@ type UserInfomation = {
   email: string;
   password: string;
 };
-function validateLogin(values: UserInfomation) {
+function validateUser(values: UserInfomation) {
   const errors = {
     email: '',
     password: '',
@@ -15,4 +15,16 @@ function validateLogin(values: UserInfomation) {
   }
   return errors;
 }
-export {validateLogin};
+
+function validateLogin(values: UserInfomation) {
+  return validateUser(values);
+}
+function validateSignup(values: UserInfomation & {passwordConfirm: string}) {
+  const errors = validateUser(values);
+  const signupErrors = {...errors, passwordConfirm: ''};
+  if (values.password !== values.passwordConfirm) {
+    signupErrors.passwordConfirm = '비밀번호가 일치하지않습니다.';
+  }
+  return signupErrors;
+}
+export {validateLogin, validateSignup};
