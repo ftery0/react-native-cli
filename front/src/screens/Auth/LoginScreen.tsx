@@ -1,11 +1,14 @@
 import React, {useRef} from 'react';
 import {SafeAreaView, StyleSheet, TextInput, View} from 'react-native';
-import InputField from '../../components/inputField';
-import CustomButton from '../../components/CustomButton';
-import useForm from '../../hooks/useForm';
-import {validateLogin} from '../../utils';
 
-const LoginScreens = ({}) => {
+import InputField from '@/components/InputFields';
+import CustomButton from '@/components/CustomButton';
+import useForm from '@/hooks/useForm';
+import useAuth from '@/hooks/useAuth';
+import {validateLogin} from '@/utils';
+
+function LoginScreen() {
+  const {loginMutation} = useAuth();
   const passwordRef = useRef<TextInput | null>(null);
   const login = useForm({
     initialValue: {email: '', password: ''},
@@ -14,6 +17,7 @@ const LoginScreens = ({}) => {
 
   const handleSubmit = () => {
     console.log('login.values', login.values);
+    loginMutation.mutate(login.values);
   };
 
   return (
@@ -22,7 +26,7 @@ const LoginScreens = ({}) => {
         <InputField
           autoFocus
           placeholder="이메일"
-          error={'이메일을 입력하세요'}
+          error={login.errors.email}
           touched={login.touched.email}
           inputMode="email"
           returnKeyType="next"
@@ -33,7 +37,7 @@ const LoginScreens = ({}) => {
         <InputField
           ref={passwordRef}
           placeholder="비밀번호"
-          error={'비밀번호를 입력하세요'}
+          error={login.errors.password}
           touched={login.touched.password}
           secureTextEntry
           returnKeyType="join"
@@ -49,7 +53,7 @@ const LoginScreens = ({}) => {
       />
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -62,4 +66,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreens;
+export default LoginScreen;

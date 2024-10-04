@@ -8,8 +8,8 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import {colors} from '../constants/color';
-import {mergeRefs} from '../utils/common';
+import {colors} from '@/constants';
+import {mergeRefs} from '@/utils';
 
 interface InputFieldProps extends TextInputProps {
   disabled?: boolean;
@@ -30,7 +30,6 @@ const InputField = forwardRef(
       innerRef.current?.focus();
     };
 
- 
     return (
       <Pressable onPress={handlePressInput}>
         <View
