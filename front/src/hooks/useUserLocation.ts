@@ -10,6 +10,8 @@ function useUserLocation() {
   const [isUserLocationError, setIsUserLocationError] = useState(false);
   const {isComeback} = useAppState();
   useEffect(() => {
+    console.log(userLocation);
+    
     Geolocation.getCurrentPosition(
       info => {
         const {latitude, longitude} = info.coords;
