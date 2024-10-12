@@ -4,13 +4,15 @@ const mainNavigations = {
   CALENDAR: 'Calendar',
 } as const;
 
-const authNaviagtions = {
+const authNavigations = {
   AUTH_HOME: 'AuthHome',
   LOGIN: 'Login',
   SIGNUP: 'Signup',
 } as const;
+
 const mapNavigations = {
   MAP_HOME: 'MapHome',
+  ADD_POST: 'AddPost',
 } as const;
 
-export {mainNavigations,authNaviagtions, mapNavigations};
+export {mainNavigations, authNavigations, mapNavigations};

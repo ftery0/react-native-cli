@@ -1,13 +1,16 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {LatLng, MapMarkerProps, Marker} from 'react-native-maps';
+import {LatLng, Marker, MyMapMarkerProps} from 'react-native-maps';
+
 import {colors} from '@/constants';
 import {MarkerColor} from '@/types';
-interface CustomMarkerProps extends MapMarkerProps {
-  coordinate: LatLng;
+
+interface CustomMarkerProps extends MyMapMarkerProps {
+  coordinate?: LatLng;
   color: MarkerColor;
   score?: number;
 }
+
 const colorHex = {
   RED: colors.PINK_400,
   BLUE: colors.BLUE_400,
@@ -15,40 +18,48 @@ const colorHex = {
   YELLOW: colors.YELLOW_400,
   PURPLE: colors.PURPLE_400,
 };
+
 function CustomMarker({
   coordinate,
   color,
   score = 5,
   ...props
 }: CustomMarkerProps) {
-  return (
-    <Marker coordinate={coordinate} {...props}>
-      <View style={styles.container}>
-        <View style={[styles.marker, {backgroundColor: colorHex[color]}]}>
-          <View style={[styles.eye, styles.leftEye]} />
-          <View style={[styles.eye, styles.rightEye]} />
-          {score > 3 && <View style={[styles.mouth, styles.good]} />}
-          {score === 3 && <View style={styles.soso} />}
-          {score < 3 && <View style={[styles.mouth, styles.bad]} />}
-        </View>
+  const markerView = (
+    <View style={styles.container}>
+      <View style={[styles.marker, {backgroundColor: colorHex[color]}]}>
+        <View style={[styles.eye, styles.leftEye]} />
+        <View style={[styles.eye, styles.rightEye]} />
+        {score > 3 && <View style={[styles.mouth, styles.good]} />}
+        {score === 3 && <View style={styles.soso} />}
+        {score < 3 && <View style={[styles.mouth, styles.bad]} />}
       </View>
+    </View>
+  );
+
+  return coordinate ? (
+    <Marker coordinate={coordinate} {...props}>
+      {markerView}
     </Marker>
+  ) : (
+    markerView
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     height: 35,
     width: 32,
+    alignItems: 'center',
   },
   marker: {
     transform: [{rotate: '45deg'}],
-    borderColor: colors.BLACK,
     width: 27,
     height: 27,
     borderRadius: 27,
     borderBottomRightRadius: 1,
     borderWidth: 1,
+    borderColor: colors.BLACK,
   },
   eye: {
     position: 'absolute',
@@ -67,8 +78,8 @@ const styles = StyleSheet.create({
   },
   mouth: {
     transform: [{rotate: '45deg'}],
-    borderBottomColor: 'rgba(255,255,255 / 0.01)',
     borderTopColor: 'rgba(255,255,255 / 0.01)',
+    borderBottomColor: 'rgba(255,255,255 / 0.01)',
     width: 12,
     height: 12,
     borderWidth: 1,
@@ -86,7 +97,7 @@ const styles = StyleSheet.create({
     marginTop: 13,
     width: 8,
     height: 8,
-    borderColor: colors.BLACK,
+    borderLeftColor: colors.BLACK,
     borderLeftWidth: 1,
     transform: [{rotate: '45deg'}],
   },
@@ -97,4 +108,5 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.BLACK,
   },
 });
+
 export default CustomMarker;
