@@ -1,47 +1,87 @@
-import React, {useRef} from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import React, {useRef, useState} from 'react';
+import {Alert, Pressable, StyleSheet, View} from 'react-native';
+import MapView, {
+  Callout,
+  LatLng,
+  LongPressEvent,
+  Marker,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import useAuth from '@/hooks/useAuth';
-import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
-import {DrawerNavigationProp} from '@react-navigation/drawer';
-import {MainDrawerParamList} from '@/navigation/drawer/MainDrawerNavigator';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {MapStackParamList} from '@/navigation/stack/MapStackNavigator';
-import {colors} from '@/constants';
-import useUserLocation from '@/hooks/useUserLocation';
-import usePermission from '@/hooks/usePermission';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
+import {DrawerNavigationProp} from '@react-navigation/drawer';
+import {StackNavigationProp} from '@react-navigation/stack';
+
+import {MapStackParamList} from '@/navigations/stack/MapStackNavigator';
+import {MainDrawerParamList} from '@/navigations/drawer/MainDrawerNavigator';
+import useModal from '@/hooks/useModal';
+import useGetMarkers from '@/hooks/queries/useGetMarkers';
+import useUserLocation from '@/hooks/useUserLocation';
+import usePermission from '@/hooks/usePermission';
+import CustomMarker from '@/components/CustomMarker';
+import MarkerModal from '@/components/MarkerModal';
+import mapStyle from '@/style/mapStyle';
+import {alerts, colors, mapNavigations} from '@/constants';
 
 type Navigation = CompositeNavigationProp<
   StackNavigationProp<MapStackParamList>,
   DrawerNavigationProp<MainDrawerParamList>
 >;
 
-const MapHomeScreen = () => {
-  const mapRef = useRef<MapView | null>(null);
-  const {logoutMutation} = useAuth();
-  const insets = useSafeAreaInsets();
+function MapHomeScreen() {
+  const inset = useSafeAreaInsets();
   const navigation = useNavigation<Navigation>();
+  const mapRef = useRef<MapView | null>(null);
   const {userLocation, isUserLocationError} = useUserLocation();
+  const [selectLocation, setSelectLocation] = useState<LatLng | null>();
+  const [markerId, setMarkerId] = useState<number | null>(null);
+  const markerModal = useModal();
+  const {data: markers = []} = useGetMarkers();
   usePermission('LOCATION');
 
-  const handlePressUserLocation = () => {
-    if (isUserLocationError) {
-      return;
-    }
+  const moveMapView = (coordinate: LatLng) => {
     mapRef.current?.animateToRegion({
-      latitude: userLocation.latitude,
-      longitude: userLocation.longitude,
+      ...coordinate,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     });
   };
 
-  const handleLogout = () => {
-    logoutMutation.mutate(null);
+  const handlePressMarker = (id: number, coordinate: LatLng) => {
+    setMarkerId(id);
+    markerModal.show();
+    moveMapView(coordinate);
   };
+
+  const handleLongPressMapView = ({nativeEvent}: LongPressEvent) => {
+    setSelectLocation(nativeEvent.coordinate);
+  };
+
+  const handlePressAddPost = () => {
+    if (!selectLocation) {
+      return Alert.alert(
+        alerts.NOT_SELECTED_LOCATION.TITLE,
+        alerts.NOT_SELECTED_LOCATION.DESCRIPTION,
+      );
+    }
+
+    navigation.navigate(mapNavigations.ADD_POST, {
+      location: selectLocation,
+    });
+    setSelectLocation(null);
+  };
+
+  const handlePressUserLocation = () => {
+    if (isUserLocationError) {
+      // 에러메세지를 표시하기
+      return;
+    }
+
+    moveMapView(userLocation);
+  };
+
   return (
     <>
       <MapView
@@ -51,21 +91,51 @@ const MapHomeScreen = () => {
         showsUserLocation
         followsUserLocation
         showsMyLocationButton={false}
-      />
+        customMapStyle={mapStyle}
+        onLongPress={handleLongPressMapView}
+        region={{
+          ...userLocation,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}>
+        {markers.map(({id, color, score, ...coordinate}) => (
+          <CustomMarker
+            key={id}
+            color={color}
+            score={score}
+            coordinate={coordinate}
+            onPress={() => handlePressMarker(id, coordinate)}
+          />
+        ))}
+        {selectLocation && (
+          <Callout>
+            <Marker coordinate={selectLocation} />
+          </Callout>
+        )}
+      </MapView>
+
       <Pressable
-        style={[styles.drawerButton, {top: insets.top || 20}]}
+        style={[styles.drawerButton, {top: inset.top || 20}]}
         onPress={() => navigation.openDrawer()}>
         <Ionicons name="menu" color={colors.WHITE} size={25} />
-
       </Pressable>
       <View style={styles.buttonList}>
+        <Pressable style={styles.mapButton} onPress={handlePressAddPost}>
+          <MaterialIcons name="add" color={colors.WHITE} size={25} />
+        </Pressable>
         <Pressable style={styles.mapButton} onPress={handlePressUserLocation}>
-        <MaterialIcons name="my-location" color={colors.WHITE} size={25} />
+          <MaterialIcons name="my-location" color={colors.WHITE} size={25} />
         </Pressable>
       </View>
+
+      <MarkerModal
+        markerId={markerId}
+        isVisible={markerModal.isVisible}
+        hide={markerModal.hide}
+      />
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -76,9 +146,9 @@ const styles = StyleSheet.create({
     left: 0,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    backgroundColor: colors.PINK_700,
     borderTopRightRadius: 50,
     borderBottomRightRadius: 50,
-    backgroundColor: colors.PINK_700,
     shadowColor: colors.BLACK,
     shadowOffset: {width: 1, height: 1},
     shadowOpacity: 0.5,
@@ -90,12 +160,12 @@ const styles = StyleSheet.create({
     right: 15,
   },
   mapButton: {
+    backgroundColor: colors.PINK_700,
     marginVertical: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
     height: 48,
     width: 48,
-    backgroundColor: colors.PINK_700,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 30,
     shadowColor: colors.BLACK,
     shadowOffset: {width: 1, height: 2},

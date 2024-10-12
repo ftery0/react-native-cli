@@ -2,9 +2,7 @@
 
 > Inflearn, Kyo
 
-
 <br>
-
 # Domain
 ```ts
 type MarkerColor = 'RED' | 'YELLOW' | 'GREEN' | 'BLUE' | 'PURPLE';
@@ -37,13 +35,9 @@ interface Profile {
   loginType: 'email' | 'kakao' | 'apple';
 }
 ```
-
 # API
-
 ## Auth
-
 #### POST /auth/signup
-
 - requestBody
 ```
 {
@@ -52,7 +46,6 @@ interface Profile {
 }
 ```
 #### POST /auth/signin
-
 - requestBody
 ```js
 {
@@ -60,7 +53,6 @@ interface Profile {
   password: string;
 }
 ```
-
 - responseBody
 ```js
 {
@@ -69,12 +61,10 @@ interface Profile {
 }
 ```
 #### GET /auth/refresh
-
 - header
 ```js
 Authorization: `Bearer ${refreshToken}`;
 ```
-
 - responseBody
 ```js
 {
@@ -82,16 +72,12 @@ Authorization: `Bearer ${refreshToken}`;
   refreshToken: string;
 }
 ```
-
 #### GET /auth/me (getProfile)
-
 - responseBody
 ```ts
 type ResponseProfile = Profile & Category;
 ```
-
 #### PATCH /auth/me (editProfile)
-
 - requestBody
 ```ts
 type RequestProfile = Omit<
@@ -99,36 +85,28 @@ type RequestProfile = Omit<
   'id' | 'email' | 'kakaoImageUri' | 'loginType'
 >;
 ```
-
 - responseBody
 ```ts
 type ResponseProfile = Profile & Category;
 ```
-
 #### POST /auth/logout
-
 #### DELETE /auth/me
-
 #### PATCH /auth/category
 - requestBody
 ```ts
 type Category
 ```
-
 - responseBody
 ```ts
 type ResponseProfile = Profile & Category;
 ```
-
 #### POST /auth/oauth/kakao
-
 - requestBody
 ```js
 {
   token: string;
 }
 ```
-
 - responseBody
 ```js
 {
@@ -136,7 +114,6 @@ type ResponseProfile = Profile & Category;
   refreshToken: string;
 }
 ```
-
 #### POST /auth/oauth/apple
 - requestBody
 ```js
@@ -146,7 +123,6 @@ type ResponseProfile = Profile & Category;
   nickname: string | null;
 }
 ```
-
 - responseBody
 ```js
 {
@@ -155,17 +131,12 @@ type ResponseProfile = Profile & Category;
 }
 ```
 <br>
-
 ## Marker & Post
-
 #### GET /markers/my
 - responseBody
 ```ts
 Marker[]
 ```
-
-
-
 #### GET /posts/:id
 - param
 ```ts
@@ -175,7 +146,6 @@ Marker[]
 ```
 - requestBody
 ```ts
-
 // type ResponsePost = Post & { images: ImageUri[] };
 type ResponseSinglePost = ResponsePost & { isFavorite: boolean };
 ```
@@ -207,8 +177,8 @@ ResponsePost[];
 }
 ```
 - responseBody
-// type ResponsePost = Post & { images: ImageUri[] };
 ```js
+// type ResponsePost = Post & { images: ImageUri[] };
 ResponsePost[];
 ```
 #### POST /posts
@@ -274,7 +244,6 @@ type ResponseCalendarPost = Record<number, CalendarPost[]>;
 }
 ```
 <br>
-
 ## Image
 #### POST /images
 - requestBody : `FormData`
